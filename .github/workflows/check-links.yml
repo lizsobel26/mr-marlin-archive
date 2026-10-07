@@ -5,7 +5,8 @@ on:
     - cron: "0 13 1 * *" # WHY: 1st of each month, 9am Eastern; videos disappear slowly, so monthly catches them without noise
   workflow_dispatch: {}
   push:
-    paths: ["data/videos.json"] # WHY: re-check right away when the video list is updated
+    branches: [main]
+    paths: ["data/videos.json", "scripts/check_links.py"] # WHY: re-check right away when the list or the checker changes
 
 permissions:
   contents: write # commit data/link-status.json so the site can hide dead links

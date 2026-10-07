@@ -35,6 +35,18 @@ class YouTube(unittest.TestCase):
         status, detail = cl.check(self.url, fake({OEMBED: (401, "", ""), WATCH: (200, WATCH, page)}))
         self.assertEqual((status, detail), ("broken", "This video is private"))
 
+    def test_bot_check_and_age_gate_are_not_broken(self):
+        for reason in ("Sign in to confirm you’re not a bot", "Sign in to confirm your age"):
+            page = '"playabilityStatus":{"status":"LOGIN_REQUIRED","reason":"%s"}' % reason
+            get = fake({OEMBED: (401, "", ""), WATCH: (200, WATCH, page)})
+            self.assertEqual(cl.check(self.url, get)[0], "unknown", reason)
+
+    def test_removed_and_region_blocked(self):
+        gone = '"playabilityStatus":{"status":"ERROR","reason":"Video unavailable"}'
+        self.assertEqual(cl.check(self.url, fake({OEMBED: (401, "", ""), WATCH: (200, WATCH, gone)}))[0], "broken")
+        region = '"playabilityStatus":{"status":"UNPLAYABLE","reason":"The uploader has not made this video available in your country"}'
+        self.assertEqual(cl.check(self.url, fake({OEMBED: (401, "", ""), WATCH: (200, WATCH, region)}))[0], "unknown")
+
     def test_embedding_disabled_but_playable(self):
         page = '"playabilityStatus":{"status":"OK"}'
         self.assertEqual(cl.check(self.url, fake({OEMBED: (401, "", ""), WATCH: (200, WATCH, page)}))[0], "ok")
