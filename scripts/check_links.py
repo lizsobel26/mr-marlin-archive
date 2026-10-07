@@ -71,11 +71,21 @@ def check_youtube(url, get):
     # so the watch page has to settle it
     _, _, page = get(watch + "&hl=en")
     m = re.search(r'"playabilityStatus":\{"status":"(\w+)"(?:,"reason":"([^"]*)")?', page)
-    if m and m.group(1) == "OK":
+    if not m:
+        return "unknown", "YouTube returned %s" % status
+    state, reason = m.group(1), m.group(2) or ""
+    if state == "OK":
         return "ok", ""
-    if m and m.group(1) in ("ERROR", "UNPLAYABLE", "LOGIN_REQUIRED"):
-        return "broken", m.group(2) or "YouTube won't play this video"
-    return "unknown", "YouTube returned %s" % status
+    # WHY: LOGIN_REQUIRED also covers YouTube's bot check (common from cloud servers like GitHub's)
+    # and age-restricted videos, which still exist; only a private video is really gone
+    if state == "LOGIN_REQUIRED" and "private" not in reason.lower():
+        return "unknown", reason or "YouTube asked us to sign in"
+    # WHY: region blocks depend on where the checker runs, not on whether the video exists
+    if state == "UNPLAYABLE" and "country" in reason.lower():
+        return "unknown", reason
+    if state in ("ERROR", "UNPLAYABLE", "LOGIN_REQUIRED"):
+        return "broken", reason or "YouTube won't play this video"
+    return "unknown", "YouTube reported %s" % state
 
 
 def check_archive(url, get):
