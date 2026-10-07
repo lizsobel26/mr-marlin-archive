@@ -1,0 +1,28 @@
+name: Suggest a video
+description: Tell us about a Jeff Conine video that isn't in the archive yet.
+title: "Video suggestion: "
+labels: ["suggestion"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Video link
+      placeholder: https://www.youtube.com/watch?v=...
+    validations:
+      required: true
+  - type: input
+    id: what
+    attributes:
+      label: What's in it?
+      placeholder: e.g. Conine's two homers against the Reds, 1996
+    validations:
+      required: true
+  - type: input
+    id: when
+    attributes:
+      label: Date of the game or event (if you know it)
+      placeholder: 1996-06-12, or just 1996
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?

@@ -1,0 +1,62 @@
+name: Check video links
+
+on:
+  schedule:
+    - cron: "0 13 1 * *" # WHY: 1st of each month, 9am Eastern; videos disappear slowly, so monthly catches them without noise
+  workflow_dispatch: {}
+  push:
+    paths: ["data/videos.json"] # WHY: re-check right away when the video list is updated
+
+permissions:
+  contents: write # commit data/link-status.json so the site can hide dead links
+  issues: write # open or update the "Broken video links" issue
+
+concurrency:
+  group: check-links
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20 # WHY: a normal run takes ~1 minute; this only stops a run that's stuck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests
+
+      - name: Check links
+        run: python scripts/check_links.py
+
+      - name: Save results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/link-status.json
+          if git diff --cached --quiet; then
+            echo "No change in link status"
+          else
+            git commit -m "chore(links): Update link check results"
+            git push
+          fi
+
+      - name: Open, update or close the broken-links issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="Broken video links"
+          NUMBER=$(gh issue list --state open --search "\"$TITLE\" in:title" --json number --jq '.[0].number')
+          if grep -q "All links are working" broken-links.md; then
+            if [ -n "$NUMBER" ]; then
+              gh issue close "$NUMBER" --comment "The latest check found no dead links."
+            fi
+          elif [ -n "$NUMBER" ]; then
+            gh issue edit "$NUMBER" --body-file broken-links.md
+            gh issue comment "$NUMBER" --body "Updated by the link check on $(date -u +%Y-%m-%d)."
+          else
+            gh issue create --title "$TITLE" --body-file broken-links.md
+          fi

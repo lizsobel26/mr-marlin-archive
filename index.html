@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mr. Marlin Video Archive</title>
+<meta name="description" content="A fan-made index of videos about Jeff Conine's baseball and racquetball career: highlights, full game broadcasts, interviews and more.">
+<meta property="og:title" content="Mr. Marlin Video Archive">
+<meta property="og:description" content="Every video we can find about Jeff Conine's career, from the 1993 expansion Marlins to the 2025 Hall of Fame.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2300767d'/%3E%3Cpath d='M12 9l12 7-12 7z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column (max 64rem). Masthead with career line, year strip that filters, filter bar,
+   then a ledger of videos (date | thumbnail | title + notes). */
+:root {
+  --paper: #eef3f3; --surface: #ffffff; --ink: #102123; --muted: #566a6d; --line: #d3dfe0;
+  --teal: #00767d; --teal-soft: #d6eced; --warn: #9a5b00;
+  --c-game: #00767d; --c-full: #2f5f8a; --c-interview: #4a5fc1; --c-honors: #a2660a;
+  --c-racquet: #c2185b; --c-doc: #5e6b2e; --c-family: #7a4bb0;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0c1617; --surface: #132123; --ink: #e2eded; --muted: #92a8aa; --line: #24393b;
+    --teal: #3fc4ca; --teal-soft: #11383a; --warn: #f0b45a;
+    --c-game: #3fc4ca; --c-full: #8bb8e8; --c-interview: #93a3ff; --c-honors: #e6ad4f;
+    --c-racquet: #f27aa8; --c-doc: #b5c46e; --c-family: #c49af0;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 64rem; margin: 0 auto; padding-inline: 16px; padding-block: 2rem 3rem; display: grid; gap: 2rem; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+img { max-width: 100%; }
+
+.mast { display: grid; gap: .75rem; border-bottom: 3px solid var(--ink); padding-bottom: 1.25rem; }
+.eyebrow { font: 500 .75rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--teal); }
+h1 { font: 700 clamp(2.4rem, 7vw, 4rem)/.95 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font: 700 1.35rem/1.1 var(--display); text-transform: uppercase; letter-spacing: .03em; margin: 0; }
+.career { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; margin: 0; padding: 0; list-style: none; font: 400 .8rem/1.4 var(--mono); color: var(--muted); }
+.career li { white-space: nowrap; }
+.career b { color: var(--ink); font-weight: 500; }
+.lede { margin: 0; max-width: 64ch; color: var(--muted); }
+
+.years { display: grid; gap: .5rem; }
+.years-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.strip-scroll { overflow-x: auto; }
+.strip { display: flex; align-items: flex-end; gap: 2px; height: 72px; min-width: 100%; border-bottom: 1px solid var(--line); }
+.bar { flex: 1 1 0; min-width: 8px; border: 0; padding: 0; background: var(--teal-soft); border-radius: 2px 2px 0 0; cursor: pointer; }
+.bar.has { background: var(--teal); opacity: .55; }
+.bar.has:hover, .bar.on { opacity: 1; }
+.bar:disabled { cursor: default; }
+.ticks { display: flex; gap: 2px; font: 400 .7rem/1 var(--mono); color: var(--muted); }
+.ticks span { flex: 1 1 0; min-width: 8px; text-align: center; white-space: nowrap; }
+
+.list { display: grid; gap: 1rem; }
+.filters { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+input[type=search], select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: .5rem .65rem; }
+input[type=search] { flex: 1 1 14rem; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip-btn { font: 500 .8rem/1 var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .45rem .7rem; cursor: pointer; display: inline-flex; gap: .4rem; align-items: center; }
+.chip-btn[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--cat, var(--muted)); flex: none; }
+.status { font: 400 .8rem/1.4 var(--mono); color: var(--muted); }
+.linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--teal); text-decoration: underline; cursor: pointer; }
+
+.ledger { display: grid; border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 7rem 8.5rem minmax(0, 1fr); gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--line); align-items: start; }
+.when { font: 500 .8rem/1.5 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; padding-top: .15rem; }
+.thumb { display: block; aspect-ratio: 16 / 9; width: 100%; max-width: 100%; border-radius: 6px; overflow: hidden; background: var(--teal-soft); text-decoration: none; position: relative; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .src { position: absolute; inset: 0; display: grid; place-items: center; font: 700 .95rem/1 var(--display); text-transform: uppercase; letter-spacing: .04em; color: var(--teal); text-align: center; padding: .25rem; }
+.main { display: grid; gap: .3rem; min-width: 0; }
+.title { font-weight: 600; font-size: 1.02rem; text-decoration: none; overflow-wrap: anywhere; }
+.title:hover { text-decoration: underline; color: var(--teal); }
+.title .arrow { color: var(--teal); font-size: .85em; margin-left: .25rem; }
+.summary { margin: 0; color: var(--muted); max-width: 68ch; }
+.meta { display: flex; flex-wrap: wrap; gap: .35rem .9rem; font: 400 .78rem/1.4 var(--mono); color: var(--muted); }
+.cat { display: inline-flex; align-items: center; gap: .35rem; color: var(--ink); }
+.dead { color: var(--warn); font-weight: 500; }
+.empty { padding: 2.5rem 1rem; text-align: center; color: var(--muted); border-bottom: 1px solid var(--line); }
+.empty strong { display: block; color: var(--ink); font: 700 1.2rem/1.2 var(--display); text-transform: uppercase; margin-bottom: .35rem; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; display: grid; gap: .75rem; }
+.panel p { margin: 0; color: var(--muted); max-width: 64ch; }
+.btn { display: inline-block; justify-self: start; font: 600 .85rem/1 var(--body); border-radius: 6px; padding: .65rem .9rem; background: var(--teal); color: var(--paper); text-decoration: none; }
+footer { font: 400 .78rem/1.6 var(--mono); color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; display: grid; gap: .35rem; }
+
+@media (max-width: 680px) {
+  .row { grid-template-columns: 7.5rem minmax(0, 1fr); gap: .5rem 1rem; }
+  .when { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) { .bar { transition: opacity .15s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <span class="eyebrow">Video index · Jeff Conine</span>
+    <h1>Mr. Marlin Video Archive</h1>
+    <ul class="career" aria-label="Career summary">
+      <li><b>MLB</b> 1990–2007</li>
+      <li><b>2×</b> World Series champion (1997, 2003)</li>
+      <li><b>1995</b> All-Star Game MVP</li>
+      <li><b>1985</b> U.S. junior national racquetball champion</li>
+      <li><b>2025</b> Marlins Legends Hall of Fame</li>
+    </ul>
+    <p class="lede">Every video we can find about Jeff Conine's baseball and racquetball career, from the 1993 expansion Marlins to his Hall of Fame speech. Each entry links to the video where it's posted.</p>
+  </header>
+
+  <section class="years" aria-labelledby="years-h">
+    <div class="years-head">
+      <h2 id="years-h">By year</h2>
+      <span class="status" id="count">Loading the archive…</span>
+    </div>
+    <div class="strip-scroll">
+      <div class="strip" id="strip" role="group" aria-label="Filter by year"></div>
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="list" aria-labelledby="list-h">
+    <h2 id="list-h">Videos</h2>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search titles and notes (e.g. NLCS, racquetball)" aria-label="Search videos">
+      <select id="source" aria-label="Filter by source"><option value="">All sources</option></select>
+      <select id="sort" aria-label="Sort order">
+        <option value="career">Career order</option>
+        <option value="newest">Newest first</option>
+      </select>
+    </div>
+    <div class="chips" id="cats" role="group" aria-label="Filter by category"></div>
+    <div class="status" id="active-filters" hidden></div>
+    <div class="ledger" id="ledger">
+      <div class="empty"><strong>Loading videos</strong>One moment.</div>
+    </div>
+    <div class="status" id="dead-note" hidden></div>
+  </section>
+
+  <section class="panel" aria-labelledby="suggest-h">
+    <h2 id="suggest-h">Know a video we're missing?</h2>
+    <p>We're especially looking for footage of his racquetball years and his seasons with the Royals, Orioles, Phillies, Reds and Mets. Send the link and it will be added after a quick check.</p>
+    <a class="btn" href="https://github.com/lizsobel26/mr-marlin-archive/issues/new?template=suggest-video.yml" target="_blank" rel="noopener">Suggest a video</a>
+    <p class="status">Suggesting needs a free GitHub account.</p>
+  </section>
+
+  <footer>
+    <span>A fan-made index. Not affiliated with Jeff Conine, the Miami Marlins or Major League Baseball. Videos belong to their owners; this site only links to them.</span>
+    <span id="checked"></span>
+    <span>Videos about his son Griffin Conine are included only when Jeff appears in them.</span>
+  </footer>
+</div>
+
+<script>
+// WHY: Same categories and colors as the management page, so both read the same.
+const CATS = [
+  { key: "Game highlight", color: "--c-game" },
+  { key: "Full game broadcast", color: "--c-full" },
+  { key: "Interview", color: "--c-interview" },
+  { key: "Ceremony & honors", color: "--c-honors" },
+  { key: "Racquetball", color: "--c-racquet" },
+  { key: "Documentary", color: "--c-doc" },
+  { key: "Family & community", color: "--c-family" },
+];
+const SOURCE_NAMES = [
+  [/(^|\.)youtube\.com$|(^|\.)youtu\.be$/, "YouTube"], [/(^|\.)mlb\.com$/, "MLB.com"], [/(^|\.)foxsports\.com$/, "FOX Sports"],
+  [/(^|\.)sabr\.org$/, "SABR"], [/(^|\.)imdb\.com$/, "IMDb"], [/(^|\.)fishonfirst\.com$/, "Fish On First"],
+  [/(^|\.)archive\.org$/, "Internet Archive"], [/(^|\.)local10\.com$/, "WPLG Local 10"], [/(^|\.)wsvn\.com$/, "WSVN 7News"],
+  [/(^|\.)nbcmiami\.com$/, "NBC 6"], [/(^|\.)cbsnews\.com$/, "CBS News"], [/(^|\.)espn\.com$/, "ESPN"], [/(^|\.)dailymotion\.com$/, "Dailymotion"],
+];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DEAD = new Set(["broken", "moved"]); // WHY: "unknown" means the checker couldn't tell, so those stay visible
+
+const $ = (id) => document.getElementById(id);
+const state = { q: "", cat: "", year: null, source: "", sort: "career", showDead: false };
+let videos = [], linkStatus = {};
+
+function h(tag, props = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === "text") el.textContent = v;
+    else if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (k === "style") el.style.cssText = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null) el.append(kid);
+  return el;
+}
+function safeUrl(raw) {
+  try { const u = new URL(String(raw).trim()); return (u.protocol === "https:" || u.protocol === "http:") ? u : null; }
+  catch { return null; }
+}
+function sourceOf(url) {
+  const u = safeUrl(url); if (!u) return "Unknown";
+  const host = u.hostname.replace(/^www\./, "");
+  for (const [re, name] of SOURCE_NAMES) if (re.test(host)) return name;
+  return host;
+}
+function youtubeId(url) {
+  const u = safeUrl(url); if (!u) return null;
+  if (/(^|\.)youtu\.be$/.test(u.hostname)) return u.pathname.slice(1) || null;
+  if (/(^|\.)youtube\.com$/.test(u.hostname)) return u.searchParams.get("v");
+  return null;
+}
+function catColor(cat) { return (CATS.find(c => c.key === cat) || {}).color || "--muted"; }
+function fmtDate(v) {
+  const d = String(v.date || "");
+  let out = "Undated";
+  const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) out = `${MONTHS[+m[2] - 1]} ${+m[3]}, ${m[1]}`;
+  else if (/^\d{4}$/.test(d)) out = d;
+  return v.approx && out !== "Undated" ? `c. ${out}` : out;
+}
+function yearOf(v) { const m = String(v.date || "").match(/^(\d{4})/); return m ? +m[1] : null; }
+function isDead(v) { return DEAD.has((linkStatus[v.id] || {}).status); }
+function visible() { return state.showDead ? videos : videos.filter(v => !isDead(v)); }
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  const list = visible().filter(v =>
+    (!state.cat || v.category === state.cat) &&
+    (!state.source || sourceOf(v.url) === state.source) &&
+    (state.year == null || yearOf(v) === state.year) &&
+    (!q || [v.title, v.summary, v.team, v.category].join(" ").toLowerCase().includes(q)));
+  const key = v => String(v.date || "");
+  const dir = state.sort === "newest" ? -1 : 1;
+  // WHY: Undated entries always go last so they don't crowd the top in either direction.
+  return list.sort((a, b) => (!key(a)) - (!key(b)) || dir * key(a).localeCompare(key(b)));
+}
+
+function renderStrip() {
+  const strip = $("strip"), ticks = $("ticks");
+  strip.replaceChildren(); ticks.replaceChildren();
+  const years = visible().map(yearOf).filter(y => y != null);
+  if (!years.length) return;
+  const min = Math.min(...years), max = Math.max(...years);
+  const counts = {}; years.forEach(y => counts[y] = (counts[y] || 0) + 1);
+  const peak = Math.max(...Object.values(counts));
+  for (let y = min; y <= max; y++) {
+    const n = counts[y] || 0;
+    const pct = n ? Math.max(14, Math.round((n / peak) * 100)) : 4;
+    strip.append(h("button", {
+      class: "bar" + (n ? " has" : "") + (state.year === y ? " on" : ""), style: `height:${pct}%`,
+      title: `${y}: ${n} video${n === 1 ? "" : "s"}`, "aria-label": `${y}, ${n} video${n === 1 ? "" : "s"}`,
+      "aria-pressed": String(state.year === y), disabled: !n,
+      onclick: () => { state.year = state.year === y ? null : y; render(); },
+    }));
+    // WHY: Label every 5th year (and the ends) so the axis stays readable at phone width.
+    ticks.append(h("span", { text: (y === min || y === max || y % 5 === 0) ? String(y) : "" }));
+  }
+}
+
+function renderCats() {
+  const box = $("cats"); box.replaceChildren();
+  const vis = visible(), counts = {};
+  vis.forEach(v => counts[v.category] = (counts[v.category] || 0) + 1);
+  box.append(h("button", { class: "chip-btn", "aria-pressed": String(!state.cat), text: `All (${vis.length})`,
+    onclick: () => { state.cat = ""; render(); } }));
+  for (const c of CATS) {
+    if (!counts[c.key]) continue;
+    box.append(h("button", { class: "chip-btn", "aria-pressed": String(state.cat === c.key), style: `--cat: var(${c.color})`,
+      onclick: () => { state.cat = state.cat === c.key ? "" : c.key; render(); } },
+      h("span", { class: "dot" }), `${c.key} (${counts[c.key]})`));
+  }
+}
+
+function renderSources() {
+  const sel = $("source"), cur = state.source;
+  const counts = {};
+  visible().forEach(v => { const s = sourceOf(v.url); counts[s] = (counts[s] || 0) + 1; });
+  const names = Object.keys(counts).sort();
+  sel.replaceChildren(h("option", { value: "", text: "All sources" }), ...names.map(n => h("option", { value: n, text: `${n} (${counts[n]})` })));
+  sel.value = names.includes(cur) ? cur : "";
+  state.source = sel.value;
+}
+
+function thumbFor(v, u) {
+  const id = youtubeId(v.url);
+  const kids = id
+    ? [h("img", { src: `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`, alt: "", loading: "lazy", decoding: "async", width: "320", height: "180" })]
+    : [h("span", { class: "src", text: sourceOf(v.url) })];
+  return u ? h("a", { class: "thumb", href: u.href, target: "_blank", rel: "noopener noreferrer", tabindex: "-1", "aria-hidden": "true" }, kids)
+           : h("span", { class: "thumb" }, kids);
+}
+
+function renderLedger() {
+  const list = filtered(), led = $("ledger");
+  led.replaceChildren();
+  if (!list.length) {
+    led.append(h("div", { class: "empty" }, h("strong", { text: "Nothing matches" }),
+      "Try a different search, or ", h("button", { class: "linkish", text: "clear all filters", onclick: clearFilters }), "."));
+  }
+  for (const v of list) {
+    const u = safeUrl(v.url);
+    const titleEl = u
+      ? h("a", { class: "title", href: u.href, target: "_blank", rel: "noopener noreferrer" }, v.title || u.href, h("span", { class: "arrow", "aria-hidden": "true", text: "↗" }))
+      : h("span", { class: "title", text: v.title || "Untitled" });
+    led.append(h("article", { class: "row" },
+      h("div", { class: "when", text: fmtDate(v) }),
+      thumbFor(v, u),
+      h("div", { class: "main" },
+        titleEl,
+        v.summary ? h("p", { class: "summary", text: v.summary }) : null,
+        h("div", { class: "meta" },
+          h("span", { class: "cat", style: `--cat: var(${catColor(v.category)})` }, h("span", { class: "dot" }), v.category || "Uncategorized"),
+          v.team ? h("span", { text: v.team }) : null,
+          h("span", { text: sourceOf(v.url) }),
+          isDead(v) ? h("span", { class: "dead", text: "Link may be dead" }) : null))));
+  }
+  const vis = visible();
+  const years = vis.map(yearOf).filter(y => y != null);
+  $("count").textContent = `${vis.length} videos` + (years.length ? ` · ${Math.min(...years)}–${Math.max(...years)}` : "");
+  const active = [state.year != null && `year ${state.year}`, state.cat, state.source, state.q.trim() && `“${state.q.trim()}”`].filter(Boolean);
+  const af = $("active-filters");
+  af.hidden = !active.length;
+  af.replaceChildren(`Showing ${list.length} of ${vis.length} · ${active.join(", ")} · `, h("button", { class: "linkish", text: "Clear filters", onclick: clearFilters }));
+  const deadCount = videos.filter(isDead).length, note = $("dead-note");
+  note.hidden = !deadCount;
+  note.replaceChildren(
+    state.showDead ? `Showing ${deadCount} video${deadCount === 1 ? "" : "s"} whose link may be dead. ` : `${deadCount} video${deadCount === 1 ? "" : "s"} hidden because the link looks dead. `,
+    h("button", { class: "linkish", text: state.showDead ? "Hide them" : "Show them", onclick: () => { state.showDead = !state.showDead; render(); } }));
+}
+
+function clearFilters() { Object.assign(state, { q: "", cat: "", year: null, source: "" }); $("q").value = ""; render(); }
+function render() { renderStrip(); renderCats(); renderSources(); renderLedger(); }
+
+async function init() {
+  try {
+    const res = await fetch("data/videos.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error(res.status);
+    videos = await res.json();
+  } catch {
+    $("count").textContent = "Couldn't load the archive";
+    $("ledger").replaceChildren(h("div", { class: "empty" }, h("strong", { text: "The video list didn't load" }), "Check your connection and reload the page."));
+    return;
+  }
+  try {
+    // WHY: The link report is optional; the site works without it, just without dead-link hiding.
+    const res = await fetch("data/link-status.json", { cache: "no-cache" });
+    if (res.ok) {
+      const s = await res.json();
+      linkStatus = s.results || {};
+      if (s.checkedAt) $("checked").textContent = `Links last checked ${s.checkedAt.slice(0, 10)}.`;
+    }
+  } catch { linkStatus = {}; }
+  render();
+}
+
+$("q").addEventListener("input", e => { state.q = e.target.value; renderLedger(); });
+$("source").addEventListener("change", e => { state.source = e.target.value; renderLedger(); });
+$("sort").addEventListener("change", e => { state.sort = e.target.value; renderLedger(); });
+init();
+</script>
+</body>
+</html>
