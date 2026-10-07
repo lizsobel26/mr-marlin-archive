@@ -1,5 +1,5 @@
 {
- "checkedAt": "2026-10-07T17:58:17Z",
+ "checkedAt": "2026-10-07T18:00:44Z",
  "results": {
   "oth-florida-20marlins-20-27a-20great-20beginning-27-201993-m": {
    "status": "ok",
@@ -472,7 +472,7 @@
    "url": "https://www.youtube.com/watch?v=1O8kPnAes34"
   },
   "yt-watch-v-4wc5nz3ic-e": {
-   "status": "broken",
+   "status": "unknown",
    "detail": "Sign in to confirm you’re not a bot",
    "url": "https://www.youtube.com/watch?v=4Wc5Nz3Ic-E"
   },
@@ -852,8 +852,8 @@
    "url": "https://www.youtube.com/watch?v=gfWGT1VqDFM"
   },
   "oth-3579634": {
-   "status": "unknown",
-   "detail": "Couldn't reach the site (IncompleteRead)",
+   "status": "ok",
+   "detail": "",
    "url": "https://www.nbcmiami.com/news/sports/miami-marlins/jeff-conine-inducted-into-marlins-hall-of-fame-before-son-homers-against-pirates/3579634/"
   },
   "hof-inducted-mlb": {
@@ -907,8 +907,8 @@
    "url": "https://www.youtube.com/watch?v=4K9nXZhThBM"
   },
   "oth-marlins-legend-jeff-conine-congratulates-eliott-rodrigue": {
-   "status": "ok",
-   "detail": "",
+   "status": "unknown",
+   "detail": "Site returned 406",
    "url": "https://www.cbsnews.com/miami/video/marlins-legend-jeff-conine-congratulates-eliott-rodriguez-on-storied-career/"
   },
   "oth-former-marlins-star-jeff-conine-hosts-annual-golf-tourna": {
